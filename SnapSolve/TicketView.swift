@@ -32,3 +32,7 @@ struct TicketView: View {
         .padding()
     }
 }
+
+#Preview {
+    
+}

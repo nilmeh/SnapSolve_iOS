@@ -14,7 +14,10 @@ import UIKit
 class CameraService: NSObject, ObservableObject {
     let session = AVCaptureSession()
     private let output = AVCapturePhotoOutput()
-
+    
+    // 🛠 Keep a reference to the last delegate
+    private var photoCaptureDelegate: AVCapturePhotoCaptureDelegate?
+    
     func configure() {
         session.beginConfiguration()
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
@@ -30,25 +33,38 @@ class CameraService: NSObject, ObservableObject {
         }
         session.sessionPreset = .photo
         session.commitConfiguration()
-        session.startRunning()
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.session.startRunning()
+        }
     }
-
+    
     func capturePhoto(completion: @escaping (Data?) -> Void) {
         let settings = AVCapturePhotoSettings()
         settings.isAutoStillImageStabilizationEnabled = true
-        output.capturePhoto(with: settings, delegate: PhotoCaptureDelegate(completion: completion))
-    }
 
+        let delegate = PhotoCaptureDelegate(completion: { [weak self] data in
+            completion(data)
+            self?.photoCaptureDelegate = nil // clear reference after capture finishes
+        })
+        
+        self.photoCaptureDelegate = delegate
+        output.capturePhoto(with: settings, delegate: delegate)
+    }
+    
     private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         let completion: (Data?) -> Void
         init(completion: @escaping (Data?) -> Void) {
             self.completion = completion
         }
-        func photoOutput(_ output: AVCapturePhotoOutput,
-                         didFinishProcessingPhoto photo: AVCapturePhoto,
-                         error: Error?) {
-            guard error == nil,
-                  let data = photo.fileDataRepresentation() else {
+        
+        func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+            if let error = error {
+                print("Photo capture error: \(error)")
+                completion(nil)
+                return
+            }
+            guard let data = photo.fileDataRepresentation() else {
                 completion(nil)
                 return
             }
