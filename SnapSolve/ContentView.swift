@@ -11,9 +11,7 @@ import AVFoundation
 struct ContentView: View {
     @StateObject private var cameraService = CameraService()
     @StateObject private var locationManager = LocationManager()
-    @State private var result: AnalysisResult?
-    @State private var ticket: Ticket?
-    @State private var showTicket = false
+    @State private var ticket: Ticket?    // when set, sheet appears
     @State private var isProcessing = false
 
     var body: some View {
@@ -45,16 +43,14 @@ struct ContentView: View {
                 if granted {
                     cameraService.configure()
                 } else {
-                    print("No camera access")
+                    print("Camera access denied")
                 }
             }
             locationManager.requestPermission()
         }
-
         .sheet(item: $ticket) { ticket in
             TicketView(ticket: ticket)
         }
-
     }
 
     func capture() {
@@ -64,24 +60,19 @@ struct ContentView: View {
                 isProcessing = false
                 return
             }
-            let location = locationManager.lastLocation
-            
-            GeminiService.analyze(imageData: data) { result in
+            let loc = locationManager.lastLocation
+            BackendService.analyze(imageData: data, location: loc) { result in
                 isProcessing = false
                 switch result {
                 case .success(let analysis):
-                    let id = UUID().uuidString
                     ticket = Ticket(
-                        id: id,
+                        id: UUID().uuidString,
                         imageData: data,
-                        location: location,
+                        location: loc,
                         analysis: analysis
                     )
-                    showTicket = true
-
                 case .failure(let error):
-                    print("Failed to analyze image: \(error.localizedDescription)")
-                    // Optional: show an alert if you want
+                    print("Analysis failed: \(error.localizedDescription)")
                 }
             }
         }
