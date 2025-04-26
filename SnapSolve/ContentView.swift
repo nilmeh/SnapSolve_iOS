@@ -1,9 +1,5 @@
-//
-//  ContentView.swift
-//  SnapSolve
-//
-//  Created by Niloy Meharchandani on 25/04/25.
-//
+// ContentView.swift
+// SnapSolve
 
 import SwiftUI
 import AVFoundation
@@ -11,7 +7,7 @@ import AVFoundation
 struct ContentView: View {
     @StateObject private var cameraService = CameraService()
     @StateObject private var locationManager = LocationManager()
-    @State private var ticket: Ticket?    // when set, sheet appears
+    @State private var ticket: Ticket?    // when non-nil, sheet appears
     @State private var isProcessing = false
 
     var body: some View {
@@ -49,7 +45,26 @@ struct ContentView: View {
             locationManager.requestPermission()
         }
         .sheet(item: $ticket) { ticket in
-            TicketView(ticket: ticket)
+            TicketView(
+                ticket: ticket,
+                onConfirm: {
+                    // Send to backend, then dismiss
+                    BackendService.submitTicket(ticket: ticket) { result in
+                        switch result {
+                        case .success(let id):
+                            print("Ticket submitted with ID: \(id)")
+                        case .failure(let error):
+                            print("Submit failed: \(error.localizedDescription)")
+                        }
+                        // Dismiss sheet regardless
+                        self.ticket = nil
+                    }
+                },
+                onCancel: {
+                    // Simply dismiss without sending
+                    self.ticket = nil
+                }
+            )
         }
     }
 
@@ -78,7 +93,6 @@ struct ContentView: View {
         }
     }
 }
-
 
 #Preview {
     ContentView()

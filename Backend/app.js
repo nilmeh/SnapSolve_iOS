@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const analyzeRoute = require('./routes/analyze');
+const ticketsRoute = require('./routes/tickets'); // <-- add this import
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,8 +34,9 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use('/api', analyzeRoute);
+app.use('/api/tickets', ticketsRoute); // <-- add this route!
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`🚀 Server listening on port ${PORT}`);
 });
