@@ -10,9 +10,22 @@
 		F8FBE0492DBCA05000BF4522 /* SnapSolve.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapSolve.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F8FBE0692DBCABEC00BF4522 /* Exceptions for "SnapSolve" folder in "SnapSolve" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F8FBE0482DBCA05000BF4522 /* SnapSolve */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F8FBE04B2DBCA05000BF4522 /* SnapSolve */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F8FBE0692DBCABEC00BF4522 /* Exceptions for "SnapSolve" folder in "SnapSolve" target */,
+			);
 			path = SnapSolve;
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,10 @@
 				DEVELOPMENT_TEAM = C5Z6Q4YN35;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnapSolve/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We require camera access in order to identify issues.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We requires location in order to send repair tickets.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -285,6 +302,10 @@
 				DEVELOPMENT_TEAM = C5Z6Q4YN35;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnapSolve/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We require camera access in order to identify issues.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We requires location in order to send repair tickets.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

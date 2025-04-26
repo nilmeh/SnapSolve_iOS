@@ -14,24 +14,32 @@ struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
 
     func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.connection?.videoOrientation = .portrait
-        view.layer.addSublayer(previewLayer)
-        context.coordinator.previewLayer = previewLayer
+        let view = PreviewUIView(session: session)
         return view
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
-        context.coordinator.previewLayer?.frame = uiView.bounds
+        // No need to update frame here; handled in PreviewUIView
     }
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
+    class PreviewUIView: UIView {
+        private let previewLayer: AVCaptureVideoPreviewLayer
 
-    class Coordinator {
-        var previewLayer: AVCaptureVideoPreviewLayer?
+        init(session: AVCaptureSession) {
+            self.previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            self.previewLayer.videoGravity = .resizeAspectFill
+            self.previewLayer.connection?.videoOrientation = .portrait
+            super.init(frame: .zero)
+            self.layer.addSublayer(previewLayer)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            previewLayer.frame = bounds // Update frame when view lays out
+        }
     }
 }

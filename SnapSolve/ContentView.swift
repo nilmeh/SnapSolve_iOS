@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     @StateObject private var cameraService = CameraService()
@@ -39,14 +40,21 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            cameraService.configure()
+            Task {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                if granted {
+                    cameraService.configure()
+                } else {
+                    print("No camera access")
+                }
+            }
             locationManager.requestPermission()
         }
-        .sheet(isPresented: $showTicket) {
-            if let ticket = ticket {
-                TicketView(ticket: ticket)
-            }
+
+        .sheet(item: $ticket) { ticket in
+            TicketView(ticket: ticket)
         }
+
     }
 
     func capture() {
@@ -57,17 +65,24 @@ struct ContentView: View {
                 return
             }
             let location = locationManager.lastLocation
-            GeminiService.analyze(imageData: data) { analysis in
-                // Generate a ticket
-                let id = UUID().uuidString
-                ticket = Ticket(
-                    id: id,
-                    imageData: data,
-                    location: location,
-                    analysis: analysis
-                )
+            
+            GeminiService.analyze(imageData: data) { result in
                 isProcessing = false
-                showTicket = true
+                switch result {
+                case .success(let analysis):
+                    let id = UUID().uuidString
+                    ticket = Ticket(
+                        id: id,
+                        imageData: data,
+                        location: location,
+                        analysis: analysis
+                    )
+                    showTicket = true
+
+                case .failure(let error):
+                    print("Failed to analyze image: \(error.localizedDescription)")
+                    // Optional: show an alert if you want
+                }
             }
         }
     }
