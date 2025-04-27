@@ -1,5 +1,3 @@
-// app.js
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -7,7 +5,24 @@ const analyzeRoute = require('./routes/analyze');
 const ticketsRoute = require('./routes/tickets'); // <-- add this import
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Basic route to test
+app.get('/', (req, res) => {
+  res.send('SnapSolve backend is running!');
+});
+
+// Use the report routes with the /api prefix
+app.use('/api/reports', reportRoutes);
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
