@@ -91,20 +91,38 @@ struct AuthView: View {
                 Spacer()
                 
                 VStack(spacing: 16) {
-                    HStack {
-                        Rectangle().frame(height: 1).foregroundColor(.gray)
-                        Text("or continue with").font(.subheadline).foregroundColor(.secondary)
-                        Rectangle().frame(height: 1).foregroundColor(.gray)
+                    HStack(spacing: 8) {
+                        Rectangle()
+                            .frame(height: 1)
+                            .foregroundColor(.gray)
+                        
+                        Text("or continue with")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .fixedSize() // <--- IMPORTANT to prevent line breaking
+                        
+                        Rectangle()
+                            .frame(height: 1)
+                            .foregroundColor(.gray)
                     }
                     .padding(.horizontal, 24)
                     
                     Button(action: loginWithGoogle) {
-                        Label("Continue with Google", image: "googleIcon")
-                            .labelStyle(TitleAndIconLabelStyle())
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
+                        HStack(spacing: 12) {
+                            Image("googleIcon")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                            
+                            Text("Continue with Google")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.primary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                     }
                     .padding(.horizontal, 24)
                 }

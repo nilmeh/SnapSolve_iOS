@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct Report: Identifiable, Decodable {
+struct Report: Identifiable, Decodable, Hashable {
     let id: String
     let problem_description: String
     let recommendation: String
@@ -17,7 +17,7 @@ struct Report: Identifiable, Decodable {
     let location: Location
     let imageBase64: String
 
-    struct Location: Decodable {
+    struct Location: Decodable, Hashable {
         let latitude: Double
         let longitude: Double
     }

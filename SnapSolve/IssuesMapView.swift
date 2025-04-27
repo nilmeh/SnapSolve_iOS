@@ -1,3 +1,11 @@
+//
+//  IssuesMapView.swift
+//  SnapSolve
+//
+//  Created by Niloy Meharchandani on 26/04/25.
+//
+
+
 import SwiftUI
 import MapKit
 
@@ -28,7 +36,7 @@ struct IssuesMapView: View {
                     }
                 }
             }
-            .ignoresSafeArea()
+            .ignoresSafeArea(.all, edges: .top)
             .onAppear {
                 Task { await fetchReports() }
             }
