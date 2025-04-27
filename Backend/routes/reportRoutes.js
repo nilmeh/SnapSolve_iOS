@@ -17,7 +17,8 @@ router.post('/', async (req, res) => {
         const newReport = new Report({
             problem_description,
             timestamp,
-            agency
+            agency,
+            userId: req.user.uid 
         });
 
         // Save the report to the database
@@ -30,13 +31,15 @@ router.post('/', async (req, res) => {
     }
 });
 
+// GET route to fetch user's reports
 router.get('/', async (req, res) => {
     try {
-      const reports = await Report.find();
-      res.json(reports);
+        // Fetch reports for the authenticated user
+        const reports = await Report.find({ userId: req.user.uid });
+        res.json(reports);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch reports.' });
+        res.status(500).json({ error: 'Failed to fetch reports.' });
     }
-  });
+});
 
 module.exports = router;
