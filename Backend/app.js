@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 });
 
 // Use the report routes with the /api prefix and protect the routes
-app.use('/api/reports', authMiddleware, reportRoutes);  // Apply authMiddleware here to protect routes
+app.use('/api/reports', authMiddleware, ticketsRoute);  // Apply authMiddleware here to protect routes
 
 // Start the server
 app.listen(PORT, () => {
