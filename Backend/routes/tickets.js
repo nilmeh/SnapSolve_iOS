@@ -66,7 +66,14 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const reports = await Report.find({ userId: req.user.uid });
+    let reports;
+    if (req.user) {
+      // If the user is authenticated, fetch reports specific to them
+      reports = await Report.find({ userId: req.user.uid });
+    } else {
+      // If no user is authenticated, return all reports
+      reports = await Report.find();
+    }
     return res.json(reports);
   } catch (err) {
     console.error('Error fetching tickets:', err);
