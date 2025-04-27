@@ -1,65 +1,119 @@
 // routes/analyze.js
 require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
-const router = express.Router();
+const axios   = require('axios');
+const router  = express.Router();
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_URL =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+/**
+ * Reverse-geocode lat/lng into:
+ *  - formatted_address: string
+ *  - address_components: [{ long_name, types: [...] }, …]
+ *  - isPrivate: boolean (establishment, university, etc)
+ */
+async function reverseGeocode(lat, lng) {
+  const resp = await axios.get(GEOCODE_URL, {
+    params: { latlng: `${lat},${lng}`, key: process.env.GOOGLE_MAPS_API_KEY }
+  });
+  const result = resp.data.results?.[0];
+  if (!result) {
+    return { formatted_address: `${lat},${lng}`, address_components: [], isPrivate: false };
+  }
+
+  const components = result.address_components;
+  const types = components.flatMap(c => c.types);
+
+  // types that imply private property
+  const privateTypes = new Set([
+    'establishment','university','school','hospital','point_of_interest',
+    'premise','subpremise'
+  ]);
+  const isPrivate = types.some(t => privateTypes.has(t));
+
+  return {
+    formatted_address: result.formatted_address,
+    address_components: components,
+    isPrivate
+  };
+}
 
 router.post('/analyze', async (req, res) => {
-  console.log('POST /api/analyze triggered');
-  console.log('Request headers:', req.headers);
-console.log('Request body size:', JSON.stringify(req.body).length, 'bytes');
-  console.log('POST /api/analyze received:', req.body);
   const { imageBase64, latitude, longitude } = req.body;
-
   if (!imageBase64) {
-    console.log('Error: Missing imageBase64');
     return res.status(400).json({ error: 'Missing imageBase64' });
   }
 
-  const prompt = `
-    Analyze this image and identify any urban infrastructure issues
-    (e.g., potholes, broken streetlights, damaged bike racks).
-    Respond ONLY with JSON: {"description":"...","recommendation":"..."}.
-  `;
+  try {
+    // 1) Reverse-geocode
+    const { formatted_address, address_components, isPrivate } =
+      await reverseGeocode(latitude, longitude);
 
-  const payload = {
-    contents: [
+    // 2) Build full location metadata object
+    const locationMeta = {
+      latitude,
+      longitude,
+      address: formatted_address,
+      components: address_components
+    };
+
+    // 3) Build prompt giving Gemini the full metadata plus the image
+    const prompt = `
+      You are analyzing an urban infrastructure report.
+      Here is the location metadata (JSON):
+      ${JSON.stringify(locationMeta, null, 2)}
+
+      Based on that metadata:
+      - Decide whether this is private property (campus, building, etc.) or public city-managed.
+      - Identify the problem in the attached image (e.g., pothole, broken light, graffiti).
+      - Recommend exactly which authority or department to notify, and give their contact email.
+
+      Respond with a JSON object only, with exactly these keys:
       {
+        "description": "short description of the problem",
+        "recommendation": "department or authority to notify",
+        "email": "contact email address"
+      }
+      No extra text, no markdown, no explanation.
+    `.trim();
+
+    // 4) Prepare Gemini payload
+    const payload = {
+      contents: [{
         parts: [
           { text: prompt },
           { inlineData: { mimeType: 'image/jpeg', data: imageBase64 } }
         ]
-      }
-    ]
-  };
+      }]
+    };
 
-  try {
-    console.log('Calling Gemini API');
-    const response = await axios.post(
+    // 5) Call Gemini
+    const geminiResp = await axios.post(
       `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`,
       payload,
-      { headers: { 'Content-Type': 'application/json' },
-      timeout: 15000 
-    }
+      { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
     );
 
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log('Gemini raw text:', text);
+    // 6) Extract and parse response
+    const raw = geminiResp.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!raw) throw new Error('No response text from Gemini');
 
-    if (!text) throw new Error('No text in Gemini response');
+    const cleaned = raw
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
-    const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    console.log('Cleaned text:', cleaned);
+    const { description, recommendation, email } = JSON.parse(cleaned);
+    console.log('Parsed result:', { description, recommendation, email });
 
-    const { description, recommendation } = JSON.parse(cleaned);
-    console.log('Parsed result:', { description, recommendation });
+    // 7) Return to client
+    return res.json({ description, recommendation, email });
 
-    res.json({ description, recommendation });
-  } catch (error) {
-    console.error('Error in /api/analyze:', error.message || error);
-    res.status(500).json({ error: error.message || 'Analysis failed' });
+  } catch (err) {
+    console.error('Error in /api/analyze:', err.response?.data || err.message);
+    return res.status(500).json({ error: err.message || 'Analysis failed' });
   }
 });
 
