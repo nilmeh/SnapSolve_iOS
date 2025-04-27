@@ -1,6 +1,7 @@
 // routes/tickets.js
 const express = require('express');
 const Report = require('../models/Report');
+const { sendReportEmail } = require('../mailer');
 
 const router = express.Router();
 

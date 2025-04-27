@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const analyzeRoute = require('./routes/analyze');
 const ticketsRoute = require('./routes/tickets');
-const { authMiddleware } = require('./auth');
+const { authMiddleware } = require('./auth');  // Import auth middleware properly
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,14 +28,14 @@ mongoose.connect(process.env.MONGO_URL, {
 .then(() => console.log('Connected to MongoDB!'))
 .catch((error) => console.error('MongoDB connection error:', error));
 
-// Routes
+// Basic route to test server
 app.get('/', (req, res) => {
   res.send('SnapSolve backend is running!');
 });
 
-// Correct API Routes
-app.use('/api/analyze', analyzeRoute);
-app.use('/api/tickets', ticketsRoute);
+// API Routes
+app.use('/api/analyze', analyzeRoute);          // No login required
+app.use('/api/tickets', authMiddleware, ticketsRoute);  // ✅ Login required (attach req.user)
 
 // Start server
 app.listen(PORT, () => {
