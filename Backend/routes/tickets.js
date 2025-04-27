@@ -38,6 +38,21 @@ router.post('/', async (req, res) => {
     });
 
     const savedReport = await newReport.save();
+
+    await sendReportEmail({
+      userEmail: req.user.email,           // Firebase user email
+      toEmail: email,                      // Reported agency email
+      subject: `New Issue Reported by User`,
+      text: `
+Problem Description: ${problem_description}
+Recommendation: ${recommendation}
+Timestamp: ${timestamp}
+Location: (${latitude}, ${longitude})
+User ID: ${req.user.uid}
+User Email: ${req.user.email}
+      `
+    });
+
     return res.status(201).json(savedReport);
 
   } catch (err) {
