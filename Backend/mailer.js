@@ -9,13 +9,13 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendReportEmail = async ({ userEmail, toEmail, subject, text }) => {
+const sendReportEmail = async ({ fromEmail, toEmail, subject, text, replyToEmail }) => {
     const mailOptions = {
-        from: process.env.GMAIL_USER,   // server's email
-        to: toEmail,                    // Recipient (agency) email
-        replyTo: userEmail,              // User's email (for reply-to)
+        from: fromEmail,  // Sender's email (user's email)
+        to: toEmail,      // Recipient's email (agency's email or whoever you are sending the report to)
         subject: subject,
         text: text,
+        replyTo: replyToEmail  // Setting the reply-to address
     };
 
     try {
@@ -25,5 +25,6 @@ const sendReportEmail = async ({ userEmail, toEmail, subject, text }) => {
         console.error('Error sending email:', error);
     }
 };
+
 
 module.exports = { sendReportEmail };
