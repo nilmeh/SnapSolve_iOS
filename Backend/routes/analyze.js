@@ -67,8 +67,8 @@ router.post('/', async (req, res) => {
 
       Based on that metadata:
       - Decide whether this is private property (campus, building, etc.) or public city-managed.
-      - Identify the problem in the attached image (e.g., pothole, broken light, graffiti).
-      - Recommend exactly which authority or department to notify, and give their contact email.
+      - Identify the problem in the attached image (e.g., pothole, broken light, graffiti). If you can't identify the problem, say "unknown".
+      - Recommend exactly which authority or department to notify, and search the web for their contact email.
 
       Respond with a JSON object only, with exactly these keys:
       {
