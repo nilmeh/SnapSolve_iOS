@@ -10,7 +10,8 @@ const ReportSchema = new mongoose.Schema({
     latitude:  { type: Number, required: true },
     longitude: { type: Number, required: true }
   },
-  imageBase64:         { type: String,   required: true }
+  imageBase64:         { type: String,   required: true },
+    userId:              { type: String,   required: true },
 }); 
 
 module.exports = mongoose.model('Report', ReportSchema);

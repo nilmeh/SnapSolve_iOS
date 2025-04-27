@@ -14,7 +14,8 @@ router.post('/', async (req, res) => {
       email,
       latitude,
       longitude,
-      imageBase64
+      imageBase64,
+      userId
     } = req.body;
 
     // Validate required fields
@@ -32,7 +33,8 @@ router.post('/', async (req, res) => {
         latitude,
         longitude
       },
-      imageBase64
+      imageBase64,
+      userId: req.user.uid // Use the user ID from the request
     });
 
     const savedReport = await newReport.save();
@@ -46,7 +48,7 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const reports = await Report.find();
+    const reports = await Report.find({ userId: req.user.uid });
     return res.json(reports);
   } catch (err) {
     console.error('Error fetching tickets:', err);
