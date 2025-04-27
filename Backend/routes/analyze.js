@@ -40,7 +40,7 @@ async function reverseGeocode(lat, lng) {
   };
 }
 
-router.post('/analyze', async (req, res) => {
+router.post('/', async (req, res) => {
   const { imageBase64, latitude, longitude } = req.body;
   if (!imageBase64) {
     return res.status(400).json({ error: 'Missing imageBase64' });

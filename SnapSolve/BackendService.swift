@@ -37,7 +37,7 @@ enum BackendError: Error, LocalizedError {
 
 class BackendService {
 
-    private static let baseURL = "https://5f54-131-179-94-177.ngrok-free.app/api"
+    private static let baseURL = "https://940f-131-179-132-163.ngrok-free.app"
 
     /// Analyze an image and get an AI description and recommendation
     static func analyze(
@@ -47,7 +47,7 @@ class BackendService {
     ) {
         print("Captured image size: \(imageData.count) bytes")
 
-        let urlString = "\(baseURL)/analyze"
+        let urlString = "\(baseURL)/api/analyze"
         print("Sending POST to: \(urlString)")
         guard let url = URL(string: urlString) else {
             completion(.failure(BackendError.invalidURL))
@@ -116,7 +116,7 @@ class BackendService {
     ) {
         print("Submitting ticket...")
 
-        let urlString = "\(baseURL)/tickets"
+        let urlString = "\(baseURL)/api/tickets"
         print("Sending POST to: \(urlString)")
         guard let url = URL(string: urlString) else {
             completion(.failure(BackendError.invalidURL))
@@ -135,7 +135,7 @@ class BackendService {
             "email":               ticket.analysis.email,
             "latitude":            ticket.location?.latitude,
             "longitude":           ticket.location?.longitude,
-            "imageBase64":         ticket.imageData.base64EncodedString()
+            "imageBase64":         ticket.imageData.base64EncodedString(),
         ]
         let filteredBody = body.compactMapValues { $0 }
         print("Submit ticket body: \(filteredBody)")

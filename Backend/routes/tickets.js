@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
         longitude
       },
       imageBase64,
-      userId: req.user.uid // Use the user ID from the request
+      // userId: req.user.uid // Use the user ID from the request
     });
 
     const savedReport = await newReport.save();

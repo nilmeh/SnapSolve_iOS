@@ -1,15 +1,13 @@
-//
-//  SnapSolveApp.swift
-//  SnapSolve
-//
-//  Created by Niloy Meharchandani on 25/04/25.
-//
-
 import SwiftUI
 import SwiftData
+import FirebaseCore
 
 @main
 struct SnapSolveApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate   // <-- Add this line
+
+    @StateObject private var sessionManager = SessionManager()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,7 +23,13 @@ struct SnapSolveApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if sessionManager.isLoggedIn {
+                ContentView()
+                    .environmentObject(sessionManager)
+            } else {
+                AuthView()
+                    .environmentObject(sessionManager)
+            }
         }
         .modelContainer(sharedModelContainer)
     }

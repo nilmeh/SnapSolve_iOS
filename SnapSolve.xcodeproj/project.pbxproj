@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F8FBEF9F2DBDD53C00BF4522 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8FBEF9E2DBDD53C00BF4522 /* GoogleSignIn */; };
+		F8FBEFA12DBDD53C00BF4522 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8FBEFA02DBDD53C00BF4522 /* GoogleSignInSwift */; };
+		F8FBEFA72DBDE27600BF4522 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F8FBEFA62DBDE27600BF4522 /* FirebaseAuth */; };
+		F8FBEFA92DBDE27600BF4522 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = F8FBEFA82DBDE27600BF4522 /* FirebaseAuthCombine-Community */; };
+		F8FBEFAB2DBDE27600BF4522 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F8FBEFAA2DBDE27600BF4522 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F8FBE0492DBCA05000BF4522 /* SnapSolve.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapSolve.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +44,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8FBEF9F2DBDD53C00BF4522 /* GoogleSignIn in Frameworks */,
+				F8FBEFA72DBDE27600BF4522 /* FirebaseAuth in Frameworks */,
+				F8FBEFA12DBDD53C00BF4522 /* GoogleSignInSwift in Frameworks */,
+				F8FBEFAB2DBDE27600BF4522 /* FirebaseFirestore in Frameworks */,
+				F8FBEFA92DBDE27600BF4522 /* FirebaseAuthCombine-Community in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +91,11 @@
 			);
 			name = SnapSolve;
 			packageProductDependencies = (
+				F8FBEF9E2DBDD53C00BF4522 /* GoogleSignIn */,
+				F8FBEFA02DBDD53C00BF4522 /* GoogleSignInSwift */,
+				F8FBEFA62DBDE27600BF4522 /* FirebaseAuth */,
+				F8FBEFA82DBDE27600BF4522 /* FirebaseAuthCombine-Community */,
+				F8FBEFAA2DBDE27600BF4522 /* FirebaseFirestore */,
 			);
 			productName = SnapSolve;
 			productReference = F8FBE0492DBCA05000BF4522 /* SnapSolve.app */;
@@ -107,6 +125,10 @@
 			);
 			mainGroup = F8FBE0402DBCA05000BF4522;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F8FBEF9C2DBDD4BC00BF4522 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F8FBEF9D2DBDD53C00BF4522 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F8FBE04A2DBCA05000BF4522 /* Products */;
 			projectDirPath = "";
@@ -264,15 +286,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SnapSolve/SnapSolve.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C5Z6Q4YN35;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SnapSolve/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We require camera access in order to identify issues.";
-				INFOPLIST_KEY_NSLocationUsageDescription = "$(PRODUCT_BUNDLE_IDENTIFIER)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We requires location in order to send repair tickets.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to capture photos for analysis";
+				INFOPLIST_KEY_NSLocationUsageDescription = niloymeharchandani.SnapSolve;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to send location to ticket.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -297,15 +320,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SnapSolve/SnapSolve.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C5Z6Q4YN35;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SnapSolve/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We require camera access in order to identify issues.";
-				INFOPLIST_KEY_NSLocationUsageDescription = "$(PRODUCT_BUNDLE_IDENTIFIER)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We requires location in order to send repair tickets.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to capture photos for analysis";
+				INFOPLIST_KEY_NSLocationUsageDescription = niloymeharchandani.SnapSolve;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to send location to ticket.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -347,6 +371,53 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F8FBEF9C2DBDD4BC00BF4522 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+		F8FBEF9D2DBDD53C00BF4522 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F8FBEF9E2DBDD53C00BF4522 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8FBEF9D2DBDD53C00BF4522 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		F8FBEFA02DBDD53C00BF4522 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8FBEF9D2DBDD53C00BF4522 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		F8FBEFA62DBDE27600BF4522 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8FBEF9C2DBDD4BC00BF4522 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F8FBEFA82DBDE27600BF4522 /* FirebaseAuthCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8FBEF9C2DBDD4BC00BF4522 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAuthCombine-Community";
+		};
+		F8FBEFAA2DBDE27600BF4522 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8FBEF9C2DBDD4BC00BF4522 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F8FBE0412DBCA05000BF4522 /* Project object */;
 }
