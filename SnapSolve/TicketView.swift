@@ -5,6 +5,8 @@
 import SwiftUI
 import MapKit
 import CoreLocation
+import FirebaseAuth
+
 
 struct TicketView: View {
     let ticket: Ticket
@@ -12,6 +14,7 @@ struct TicketView: View {
     var onCancel: () -> Void = {}
 
     @State private var mapRegion: MKCoordinateRegion
+    @State private var userName: String = ""
 
     init(ticket: Ticket, onConfirm: @escaping () -> Void = {}, onCancel: @escaping () -> Void = {}) {
         self.ticket = ticket
@@ -41,7 +44,7 @@ struct TicketView: View {
                                 .foregroundColor(.accentColor)
                         )
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("John Doe")
+                        Text(userName)
                             .font(.headline)
                         Text("Reporter")
                             .font(.caption)
@@ -114,6 +117,11 @@ struct TicketView: View {
             }
             .navigationTitle("Review Ticket")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                if let user = Auth.auth().currentUser {
+                    self.userName = user.displayName ?? "SnapSolve User"
+                }
+            }
         }
     }
 }

@@ -2,103 +2,150 @@
 //  IssuesMapView.swift
 //  SnapSolve
 //
-//  Created by Niloy Meharchandani on 26/04/25.
-//
-
 
 import SwiftUI
 import MapKit
+import CoreLocation
+import FirebaseAuth
 
 struct IssuesMapView: View {
     @State private var reports: [Report] = []
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 34.05, longitude: -118.25),
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    @State private var selectedReport: Report?
+    @State private var isShowingDetail = false
+    @State private var isLoading = false
+    @State private var userLocation: CLLocationCoordinate2D?
+    @State private var showingProfile = false
+    @EnvironmentObject var sessionManager: SessionManager
+    @State private var mapPosition = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 34.05, longitude: -118.25),
+            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        )
     )
-    @State private var selected: Report?
 
     var body: some View {
-        ZStack {
-            Map(coordinateRegion: $region,
-                annotationItems: reports) { report in
-                MapAnnotation(
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: report.location.latitude,
-                        longitude: report.location.longitude
-                    )
-                ) {
-                    Button {
-                        selected = report
-                    } label: {
-                        Image(systemName: "mappin.circle.fill")
+        NavigationStack {
+            ZStack(alignment: .bottomTrailing) {
+                Map(position: $mapPosition, interactionModes: .all) {
+                    UserAnnotation()
+                    
+                    ForEach(reports, id: \.id) { report in
+                                            Annotation(
+                                                "", // Empty title to avoid displaying ID
+                                                coordinate: CLLocationCoordinate2D(
+                                                    latitude: report.location.latitude,
+                                                    longitude: report.location.longitude
+                                                )
+                                            ) {
+                                                MapPinView {
+                                                    selectedReport = report
+                                                    isShowingDetail = true
+                                                }
+                                            }
+                                        }
+                }
+                .mapControls { MapUserLocationButton() }
+                .ignoresSafeArea(edges: .top)
+                .onAppear {
+                    Task {
+                        await fetchReports()
+                        updateUserLocation()
+                    }
+                }
+                .navigationDestination(isPresented: $isShowingDetail) {
+                    if let report = selectedReport {
+                        ViewTicketDetailView(report: report)
+                    }
+                }
+
+                Button {
+                    if let loc = userLocation {
+                        withAnimation {
+                            mapPosition = .region(
+                                MKCoordinateRegion(
+                                    center: loc,
+                                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                                )
+                            )
+                        }
+                    }
+                } label: {
+                    Image(systemName: "location.fill")
+                        .font(.title3)
+                        .padding(10)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .shadow(radius: 2)
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 40)
+
+                if isLoading {
+                    Color.black.opacity(0.25).ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                }
+            }
+            .navigationTitle("All Reports")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button { showingProfile.toggle() }
+                    label: {
+                        Image(systemName: "person.crop.circle")
                             .font(.title2)
-                            .foregroundColor(.red)
+                            .foregroundColor(.accentColor)
                     }
                 }
             }
-            .ignoresSafeArea(.all, edges: .top)
-            .onAppear {
-                Task { await fetchReports() }
-            }
-
-            if let rpt = selected {
-                ReportDetailView(report: rpt) {
-                    selected = nil
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+            .sheet(isPresented: $showingProfile) {
+                ProfileView().environmentObject(sessionManager)
             }
         }
     }
 
     private func fetchReports() async {
-        guard let url = URL(string: "https://YOUR_NGROK_URL/api/tickets") else { return }
+        guard let url = URL(string: "https://940f-131-179-132-163.ngrok-free.app/api/tickets/all") else {
+            print("❌ Invalid URL")
+            return
+        }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            reports = try JSONDecoder().decode([Report].self, from: data)
+            let (rawData, _) = try await URLSession.shared.data(from: url)
+            
+            let decoder = JSONDecoder()
+            reports = try decoder.decode([Report].self, from: rawData)
+            print("✅ Successfully decoded \(reports.count) reports")
+            
         } catch {
-            print("Error loading issues:", error)
+            print("Error fetching reports:", error.localizedDescription)
+        }
+    }
+
+    private func updateUserLocation() {
+        if let coord = CLLocationManager().location?.coordinate {
+            userLocation = coord
         }
     }
 }
 
-struct ReportDetailView: View {
-    let report: Report
-    let onDismiss: () -> Void
-
+// MARK: — Map Pin Subview
+private struct MapPinView: View {
+    var action: () -> Void
+    
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Spacer()
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .padding()
-                }
-            }
-
-            Text(report.problem_description)
-                .font(.headline)
-                .padding(.horizontal)
-
-            Text(report.recommendation)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.horizontal)
-
-            if let data = Data(base64Encoded: report.imageBase64),
-               let ui = UIImage(data: data) {
-                Image(uiImage: ui)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-                    .cornerRadius(12)
-                    .padding()
-            }
-
-            Spacer()
+        Button(action: action) {
+            Image(systemName: "mappin.circle.fill")
+                .font(.title2)
+                .foregroundColor(.red)
+                .background(
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 30, height: 30)
+                        .shadow(radius: 2)
+                )
         }
-        .background(.ultraThinMaterial)
-        .cornerRadius(16)
-        .padding()
     }
 }

@@ -84,7 +84,15 @@ struct CameraView: View {
             TicketView(
                 ticket: selectedTicket,
                 onConfirm: {
-                    self.ticket = nil
+                    BackendService.submitTicket(ticket: selectedTicket) { result in
+                        switch result {
+                        case .success(let id):
+                            print("Ticket submitted with ID: \(id)")
+                        case .failure(let error):
+                            print("Submit failed: \(error.localizedDescription)")
+                        }
+                        self.ticket = nil
+                    }
                 },
                 onCancel: {
                     self.ticket = nil

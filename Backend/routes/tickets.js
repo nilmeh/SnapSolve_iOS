@@ -1,16 +1,16 @@
-// routes/tickets.js
 const express = require('express');
 const Report = require('../models/Report');
 const { sendReportEmail } = require('../mailer');
+const { authMiddleware } = require('../auth'); // <<< ADD THIS
 
 const router = express.Router();
 
-// POST /api/tickets
-router.post('/', async (req, res) => {
+// POST /api/tickets  ✅ protected
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const {
       problem_description,
-      recommendation,      // ← renamed from `agency`
+      recommendation,
       timestamp,
       email,
       latitude,
@@ -19,12 +19,10 @@ router.post('/', async (req, res) => {
       userId
     } = req.body;
 
-    // Validate required fields
     if (!problem_description || !timestamp || !recommendation) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Build a new report (nesting location)
     const newReport = new Report({
       problem_description,
       recommendation,
@@ -35,7 +33,7 @@ router.post('/', async (req, res) => {
         longitude
       },
       imageBase64,
-      // userId: req.user.uid // Use the user ID from the request
+      userId: req.user.uid  // 👈 you need `req.user.uid`
     });
 
     const savedReport = await newReport.save();
@@ -47,13 +45,13 @@ router.post('/', async (req, res) => {
       Timestamp: ${timestamp}
       Location: (${latitude}, ${longitude})
     `;
-    
+
     await sendReportEmail({
-      fromEmail: email, // The user's email
-      toEmail: savedReport.email, // The recipient's email (could be the agency or any relevant email)
+      fromEmail: email,
+      toEmail: savedReport.email,
       subject: subject,
       text: text,
-      replyToEmail: req.user.email // Set the reply-to address to the user's email
+      replyToEmail: req.user.email
     });
 
     return res.status(201).json(savedReport);
@@ -64,19 +62,46 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+// GET /api/tickets/my  ✅ protected
+router.get('/my', authMiddleware, async (req, res) => {
   try {
-    let reports;
-    if (req.user) {
-      // If the user is authenticated, fetch reports specific to them
-      reports = await Report.find({ userId: req.user.uid });
-    } else {
-      // If no user is authenticated, return all reports
-      reports = await Report.find();
-    }
+    const reports = await Report.find({ userId: req.user.uid });
     return res.json(reports);
   } catch (err) {
-    console.error('Error fetching tickets:', err);
+    console.error('Error fetching user tickets:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/tickets/all  🌍 public
+router.get('/all', async (req, res) => {
+  try {
+    const reports = await Report.find();
+    return res.json(reports);
+  } catch (err) {
+    console.error('Error fetching all tickets:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/tickets/locations  🌍 public
+router.get('/locations', async (req, res) => {
+  try {
+    const docs = await Report.find({}, {
+      _id: 1,
+      "location.latitude": 1,
+      "location.longitude": 1
+    });
+
+    const coords = docs.map(doc => ({
+      id: doc._id,
+      latitude: doc.location.latitude,
+      longitude: doc.location.longitude
+    }));
+
+    return res.json(coords);
+  } catch (err) {
+    console.error('Error fetching locations:', err);
     return res.status(500).json({ message: 'Server error' });
   }
 });

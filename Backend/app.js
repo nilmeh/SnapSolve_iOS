@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/analyze', analyzeRoute);          // No login required
-app.use('/api/tickets', authMiddleware, ticketsRoute);  // ✅ Login required (attach req.user)
+app.use('/api/tickets', ticketsRoute);  // ✅ Login required (attach req.user)
 
 // Start server
 app.listen(PORT, () => {

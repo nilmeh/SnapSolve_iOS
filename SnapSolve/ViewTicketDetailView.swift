@@ -1,3 +1,11 @@
+//
+//  ViewTicketDetailView.swift
+//  SnapSolve
+//
+//  Created by Niloy Meharchandani on 26/04/25.
+//
+
+
 // ViewTicketDetailView.swift
 import SwiftUI
 import MapKit
